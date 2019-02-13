@@ -21,6 +21,7 @@ BOLD    = "\033[;1m"
 REVERSE = "\033[;7m"
 
 HLTMenuName="dumpedHLT.py"
+mother_path_name = "HLT_Mu50_v13"
 
 # Parse the HLT menu
 ### Usually, blindly executing an external file is a security hazard... 
@@ -28,53 +29,30 @@ execfile(HLTMenuName)
 
 print (process.process)
 pathnames = process.paths.viewkeys()
-sequencenames = list(process.sequences.viewkeys())
-
-# Find base
-# Add to DAG
-
-### LOOP
-# Find parents
-# Add to DAG
-print (sequencenames)
+sequencenames = set(process.sequences.viewkeys())
 G = nx.DiGraph()
 
-### First add the base nodes to the DAG
-print(len(sequencenames))
-for seqnamea in sequencenames:
-    base_sequence = True
-    seqa = getattr(process,seqnamea)
-    for seqnameb in sequencenames:
-        seqb = getattr(process,seqnameb)
-        if seqa.contains(seqb):
-            #print("\t"+seqnamea+" contains "+seqnameb)
-            base_sequence = False
-    if base_sequence is True:
-        print(seqnamea+" is base")
-        G.add_node(seqnamea)
+### Define function to find leaves
+def find_leaves(sequencenames, process):
+    base_sequences = set()
+    #print(len(sequencenames))
+    for seqnamea in sequencenames:
+        base_sequence = True
+        seqa = getattr(process,seqnamea)
+        for seqnameb in sequencenames:
+            seqb = getattr(process,seqnameb)
+            if seqa.contains(seqb):
+                #print("\t"+seqnamea+" contains "+seqnameb)
+                base_sequence = False
+        if base_sequence is True:
+            print(seqnamea+" is leaf")
+            base_sequences.add(seqnamea)
+    return base_sequences
 
-print("\n"+"="*16)
-print(len(sequencenames))
-print(len(G.nodes))        
-print("="*16+"\n")
-
-for base_seq in list(G.nodes):
-    sequencenames.remove(base_seq)
-
-print("\n"+"="*16)
-print("Still not in the graph:")
-print(sequencenames)
-print("="*16+"\n")
-
-### Now iteratively find the direct parents
-while (len(sequencenames) is not 0):
-    print("Still missing",len(sequencenames),"sequences")
-    
-    # Clear relationships
+### Define function to find parents
+def find_parents(children, sequencenames, process):
     new_edges = dict()
-    
-    # Traverse the graph ### FIXME:is there any way to get only nodes that have no parents?
-    for seqname in G.nodes:
+    for seqname in children:
         seq_child = getattr(process,seqname)
         distance = 9999
         seq_parent = cms.Sequence()
@@ -91,22 +69,45 @@ while (len(sequencenames) is not 0):
             new_edges[seqname] = seq_parent.label()
         else:
             #print(seqname+" has no parents")
-            new_edges[seqname] = "process"
+            new_edges[seqname] = mother_path_name
+    return new_edges
 
-    # At this point, new_edges should have all the new parent-child relationships
-    # Add the newfound parents to the graph
+### We iterate finding:
+# 1) All leaves
+# 2) All remaining sequences
+# 3) Edges between leaves and remaining sequences
+
+current_leaves = set()
+remaining_sequences = sequencenames
+
+while(len(remaining_sequences) is not 0):
+    current_leaves = find_leaves(remaining_sequences, process)
+    remaining_sequences = remaining_sequences.difference(current_leaves) 
+    new_edges = find_parents(current_leaves,remaining_sequences,process)
+    print("\n"+"="*16+"\n")
+    print(current_leaves)
+    print("\n"+"="*16+"\n")
     for key,value in new_edges.items():
-        #print("New relation:",value,"is the parent of",key)
+        print(key,"is child of",value)
+    print("\n"+"="*16+"\n")
+    for key,value in new_edges.items():
         G.add_edge(key,value)
-        # Remove the newfound parents from the sequencenames
-        #print("Try to remove",value)
-        try:
-            sequencenames.remove(value)
-        except ValueError:
-            #print("Already removed",value)
-            continue
+#     
+#         #print("New relation:",value,"is the parent of",key)
+#         new_children.add(value)
+#         
+#         # Remove the newfound parents from the sequencenames
+#         #print("Try to remove",value)
+#         sequencenames.discard(value)
+        
 
 ### At this point, all information should be in the graph!
-# It hsould have all the sequences + 1 (the process)
+# It should have all the sequences + 1 (the process)
 print(nx.info(G))
-print(list(nx.bfs_tree(G,"process",reverse=True).edges()))
+prelim_edges = list(nx.bfs_tree(G,mother_path_name,reverse=True).edges())
+print("strict graph {")
+print('node [fontname = "helvetica",shape="rectangle"];')
+print('edge [color = "red"];')
+for edge in prelim_edges:
+    print(edge[0],"--",edge[1])
+print("}")
