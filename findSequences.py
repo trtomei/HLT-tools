@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 # AlCAMenuChecker.py
 # Purpose: check that the HLT menu has all the AlCa mandatory paths
 # and that the paths are correctly seeded.
@@ -24,7 +26,7 @@ HLTMenuName="dumpedHLT.py"
 ### Usually, blindly executing an external file is a security hazard... 
 execfile(HLTMenuName)
 
-print process.process
+print (process.process)
 pathnames = process.paths.viewkeys()
 sequencenames = list(process.sequences.viewkeys())
 
@@ -34,7 +36,7 @@ sequencenames = list(process.sequences.viewkeys())
 ### LOOP
 # Find parents
 # Add to DAG
-print sequencenames
+print (sequencenames)
 G = nx.DiGraph()
 
 ### First add the base nodes to the DAG
@@ -50,35 +52,61 @@ for seqnamea in sequencenames:
     if base_sequence is True:
         print(seqnamea+" is base")
         G.add_node(seqnamea)
+
+print("\n"+"="*16)
 print(len(sequencenames))
 print(len(G.nodes))        
+print("="*16+"\n")
 
 for base_seq in list(G.nodes):
     sequencenames.remove(base_seq)
-print(len(sequencenames))
 
-### Now find the direct parents of the new base
-new_edges = dict()
-for seqname in G.nodes:
-    seq_child = getattr(process,seqname)
-    distance = 9999
-    seq_parent = cms.Sequence()
-    # Do you have parents?
-    for possible_parent in sequencenames:
-        seq_pp = getattr(process,possible_parent)
-        if (seq_pp.contains(seq_child) and len(seq_pp.moduleNames()) < distance):
-            # Okay, found a shorter parent
-            seq_parent = seq_pp
-            distance = len(seq_pp.moduleNames())
-    # At this point, we should have the shortest parent
-    if(distance < 9999):
-        print(seq_parent.label()+" is the direct parent of "+seqname)
-        new_edges[seqname] = seq_parent.label()
-    else:
-        print(seqname+" has no parents")
+print("\n"+"="*16)
+print("Still not in the graph:")
+print(sequencenames)
+print("="*16+"\n")
 
-for key,value in new_edges.items():
-    print(key,value)
-    G.add_edge(key,value)
+### Now iteratively find the direct parents
+while (len(sequencenames) is not 0):
+    print("Still missing",len(sequencenames),"sequences")
+    
+    # Clear relationships
+    new_edges = dict()
+    
+    # Traverse the graph ### FIXME:is there any way to get only nodes that have no parents?
+    for seqname in G.nodes:
+        seq_child = getattr(process,seqname)
+        distance = 9999
+        seq_parent = cms.Sequence()
+        # Do you have parents?
+        for possible_parent in sequencenames:
+            seq_pp = getattr(process,possible_parent)
+            if (seq_pp.contains(seq_child) and len(seq_pp.moduleNames()) < distance):
+                # Okay, found a shorter parent
+                seq_parent = seq_pp
+                distance = len(seq_pp.moduleNames())
+        # At this point, we should have the shortest parent
+        if(distance < 9999):
+            #print(seq_parent.label()+" is the direct parent of "+seqname)
+            new_edges[seqname] = seq_parent.label()
+        else:
+            #print(seqname+" has no parents")
+            new_edges[seqname] = "process"
 
-print(G.edges)
+    # At this point, new_edges should have all the new parent-child relationships
+    # Add the newfound parents to the graph
+    for key,value in new_edges.items():
+        #print("New relation:",value,"is the parent of",key)
+        G.add_edge(key,value)
+        # Remove the newfound parents from the sequencenames
+        #print("Try to remove",value)
+        try:
+            sequencenames.remove(value)
+        except ValueError:
+            #print("Already removed",value)
+            continue
+
+### At this point, all information should be in the graph!
+# It hsould have all the sequences + 1 (the process)
+print(nx.info(G))
+print(list(nx.bfs_tree(G,"process",reverse=True).edges()))
