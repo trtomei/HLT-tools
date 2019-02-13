@@ -1,16 +1,15 @@
 from __future__ import print_function
 
-# AlCAMenuChecker.py
-# Purpose: check that the HLT menu has all the AlCa mandatory paths
-# and that the paths are correctly seeded.
+# findSequences.py
+# Purpose: make a graph of all the sequences
+# in a given HLT path. Format is "dot"
 # Author: Thiago Tomei
-# Date: 2017-11-02
+# Date: 2019-02-13
 
 import sys
 import os
 import fnmatch
 import networkx as nx
-import matplotlib.pyplot as plt
 
 RED   = "\033[1;31m"  
 BLUE  = "\033[1;34m"
@@ -20,7 +19,7 @@ RESET = "\033[0;0m"
 BOLD    = "\033[;1m"
 REVERSE = "\033[;7m"
 
-HLTMenuName="dumpedHLT.py"
+HLTMenuName = "dumpedHLT.py"
 mother_path_name = "HLT_Mu50_v13"
 
 # Parse the HLT menu
@@ -74,7 +73,7 @@ def find_parents(children, sequencenames, process):
 
 ### We iterate finding:
 # 1) All leaves
-# 2) All remaining sequences
+# 2) All remaining sequences (i.e., the ones that are not leaves)
 # 3) Edges between leaves and remaining sequences
 
 current_leaves = set()
@@ -92,14 +91,6 @@ while(len(remaining_sequences) is not 0):
     print("\n"+"="*16+"\n")
     for key,value in new_edges.items():
         G.add_edge(key,value)
-#     
-#         #print("New relation:",value,"is the parent of",key)
-#         new_children.add(value)
-#         
-#         # Remove the newfound parents from the sequencenames
-#         #print("Try to remove",value)
-#         sequencenames.discard(value)
-        
 
 ### At this point, all information should be in the graph!
 # It should have all the sequences + 1 (the process)
