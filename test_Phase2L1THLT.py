@@ -62,8 +62,8 @@ process.l1tTkMu15TkMu7DZ1p0 = cms.EDFilter(
     originTag2=cms.VInputTag(
         "L1TkMuons",
     ),
-    inputTag1=cms.InputTag("l1tMuon5"),
-    inputTag2=cms.InputTag("l1tDoubleMuon7"),
+    inputTag1=cms.InputTag("l1tTkMu15"),
+    inputTag2=cms.InputTag("l1tTkMu7TkMu7"),
     triggerType1=cms.int32(-114),  # L1TkMuon
     triggerType2=cms.int32(-114),  # L1TkMuon
     MinDR=cms.double(-1),
