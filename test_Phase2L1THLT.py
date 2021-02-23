@@ -17,8 +17,8 @@ process.source = cms.Source(
     "PoolSource",
     fileNames=cms.untracked.vstring(
         "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/TTToSemiLepton_TuneCP5_14TeV-powheg-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/120000/FFB3F470-61B4-4545-985C-AE91A6DF4BE3.root",
-        #"/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v2/280000/015FB6F1-59B4-304C-B540-2392A983A97D.root"
-        #"/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/DYToLL_M-50_TuneCP5_14TeV-pythia8/FEVT/PU200_pilot_111X_mcRun4_realistic_T15_v1-v1/270000/FF7BF0E2-1380-2D48-BB19-F79E6907CD5D.root",
+        # "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v2/280000/015FB6F1-59B4-304C-B540-2392A983A97D.root"
+        # "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/DYToLL_M-50_TuneCP5_14TeV-pythia8/FEVT/PU200_pilot_111X_mcRun4_realistic_T15_v1-v1/270000/FF7BF0E2-1380-2D48-BB19-F79E6907CD5D.root",
         # "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/SingleElectron_PT2to200/FEVT/PU200_111X_mcRun4_realistic_T15_v1_ext2-v1/270000/0064D31F-F48B-3144-8CB9-17F820065E01.root",
     ),
 )
@@ -31,46 +31,122 @@ process.GlobalTag = GlobalTag(process.GlobalTag, "111X_mcRun4_realistic_T15_v4",
 
 ### MUON ###
 
-process.l1tMuon22 = cms.EDFilter(
+process.hltL1TkSingleMuFiltered22 = cms.EDFilter(
     "L1TTkMuonFilter",
-    MinPt=cms.double(22.0),
-    MinN=cms.int32(1),
-    MinEta=cms.double(-2.4),
     MaxEta=cms.double(2.4),
-    inputTag=cms.InputTag("L1TkMuons"),
-    Scalings=cms.PSet(
-        barrel=cms.vdouble(0.802461, 1.04193, 0.0),
-        overlap=cms.vdouble(0.921315, 1.03611, 0.0),
-        endcap=cms.vdouble(0.828802, 1.03447, 0.0),
-    ),
-)
-
-process.l1tTkMu15 = process.l1tMuon22.clone(
-    MinPt=15.0,
-)
-
-process.l1tTkMu7TkMu7 = process.l1tMuon22.clone(
-    MinPt=7.0,
-    MinN=2,
-)
-
-process.l1tTkMu15TkMu7DZ1p0 = cms.EDFilter(
-    "HLT2L1TkMuonL1TkMuonDZ",
-    originTag1=cms.VInputTag(
-        "L1TkMuons",
-    ),
-    originTag2=cms.VInputTag(
-        "L1TkMuons",
-    ),
-    inputTag1=cms.InputTag("l1tTkMu15"),
-    inputTag2=cms.InputTag("l1tTkMu7TkMu7"),
-    triggerType1=cms.int32(-114),  # L1TkMuon
-    triggerType2=cms.int32(-114),  # L1TkMuon
-    MinDR=cms.double(-1),
-    MaxDZ=cms.double(1.0),
-    MinPixHitsForDZ=cms.int32(0),  # Immaterial
-    checkSC=cms.bool(False),  # Immaterial
+    MinEta=cms.double(-2.4),
     MinN=cms.int32(1),
+    MinPt=cms.double(22.0),
+    Scalings=cms.PSet(
+        barrel=cms.vdouble(0.820128, 1.04124, 0.0),
+        endcap=cms.vdouble(0.864715, 1.03215, 0.0),
+        overlap=cms.vdouble(0.920897, 1.03712, 0.0),
+    ),
+    inputTag=cms.InputTag("L1TkMuons"),
+    saveTags=cms.bool(True),
+)
+
+process.hltL1TkSingleMuFiltered15 = cms.EDFilter(
+    "L1TTkMuonFilter",
+    MaxEta=cms.double(2.4),
+    MinEta=cms.double(-2.4),
+    MinN=cms.int32(1),
+    MinPt=cms.double(15.0),
+    Scalings=cms.PSet(
+        barrel=cms.vdouble(0.820128, 1.04124, 0.0),
+        endcap=cms.vdouble(0.864715, 1.03215, 0.0),
+        overlap=cms.vdouble(0.920897, 1.03712, 0.0),
+    ),
+    inputTag=cms.InputTag("L1TkMuons"),
+    saveTags=cms.bool(True),
+)
+
+process.hltL1TkDoubleMuFiltered7 = cms.EDFilter(
+    "L1TTkMuonFilter",
+    MaxEta=cms.double(2.4),
+    MinEta=cms.double(-2.4),
+    MinN=cms.int32(2),
+    MinPt=cms.double(7.0),
+    Scalings=cms.PSet(
+        barrel=cms.vdouble(0.820128, 1.04124, 0.0),
+        endcap=cms.vdouble(0.864715, 1.03215, 0.0),
+        overlap=cms.vdouble(0.920897, 1.03712, 0.0),
+    ),
+    inputTag=cms.InputTag("L1TkMuons"),
+    saveTags=cms.bool(True),
+)
+
+process.hltDoubleMuon7DZ1p0 = cms.EDFilter(
+    "HLT2L1TkMuonL1TkMuonDZ",
+    MaxDZ=cms.double(1.0),
+    MinDR=cms.double(-1),
+    MinN=cms.int32(1),
+    MinPixHitsForDZ=cms.int32(0),
+    checkSC=cms.bool(False),
+    inputTag1=cms.InputTag("hltL1TkDoubleMuFiltered7"),
+    inputTag2=cms.InputTag("hltL1TkDoubleMuFiltered7"),
+    originTag1=cms.VInputTag("L1TkMuons"),
+    originTag2=cms.VInputTag("L1TkMuons"),
+    saveTags=cms.bool(True),
+    triggerType1=cms.int32(-114),
+    triggerType2=cms.int32(-114),
+)
+
+process.hltL1TripleMuFiltered3 = cms.EDFilter(
+    "L1TTkMuonFilter",
+    MaxEta=cms.double(2.4),
+    MinEta=cms.double(-2.4),
+    MinN=cms.int32(3),
+    MinPt=cms.double(3.0),
+    Scalings=cms.PSet(
+        barrel=cms.vdouble(0.820128, 1.04124, 0.0),
+        endcap=cms.vdouble(0.864715, 1.03215, 0.0),
+        overlap=cms.vdouble(0.920897, 1.03712, 0.0),
+    ),
+    inputTag=cms.InputTag("L1TkMuons"),
+    saveTags=cms.bool(True),
+)
+
+process.hltL1SingleMuFiltered5 = cms.EDFilter(
+    "L1TTkMuonFilter",
+    MaxEta=cms.double(2.4),
+    MinEta=cms.double(-2.4),
+    MinN=cms.int32(1),
+    MinPt=cms.double(5.0),
+    Scalings=cms.PSet(
+        barrel=cms.vdouble(0.820128, 1.04124, 0.0),
+        endcap=cms.vdouble(0.864715, 1.03215, 0.0),
+        overlap=cms.vdouble(0.920897, 1.03712, 0.0),
+    ),
+    inputTag=cms.InputTag("L1TkMuons"),
+    saveTags=cms.bool(True),
+)
+
+process.hltTripleMuon3DZ1p0 = cms.EDFilter(
+    "HLT2L1TkMuonL1TkMuonDZ",
+    MaxDZ=cms.double(1.0),
+    MinDR=cms.double(-1),
+    MinN=cms.int32(3),
+    MinPixHitsForDZ=cms.int32(0),
+    checkSC=cms.bool(False),
+    inputTag1=cms.InputTag("hltL1TripleMuFiltered3"),
+    inputTag2=cms.InputTag("hltL1TripleMuFiltered3"),
+    originTag1=cms.VInputTag("L1TkMuons"),
+    originTag2=cms.VInputTag("L1TkMuons"),
+    saveTags=cms.bool(True),
+    triggerType1=cms.int32(-114),
+    triggerType2=cms.int32(-114),
+)
+
+process.hltTripleMuon3DR0 = cms.EDFilter(
+    "HLT2L1TkMuonL1TkMuonMuRefDR",
+    MinDR=cms.double(0),
+    MinN=cms.int32(3),
+    inputTag1=cms.InputTag("hltL1TripleMuFiltered3"),
+    inputTag2=cms.InputTag("hltL1TripleMuFiltered3"),
+    originTag1=cms.VInputTag("L1TkMuons"),
+    originTag2=cms.VInputTag("L1TkMuons"),
+    saveTags=cms.bool(True),
 )
 
 ### EGAMMA ###
@@ -396,11 +472,21 @@ process.l1tPFPuppiMET220off = cms.EDFilter(
 
 ### PATHS ###
 
-process.L1T_TkMu22 = cms.Path(process.l1tMuon22)
-process.L1T_TkMu15TkMu7DZ1p0 = cms.Path(
-    process.l1tTkMu15 + process.l1tTkMu7TkMu7 + process.l1tTkMu15TkMu7DZ1p0
+### Paths with the same name as the original Muons
+### EXCEPT I changed "L1_" to "L1T_"
+process.L1T_SingleTkMuon_22 = cms.Path(process.hltL1TkSingleMuFiltered22)
+# This path was mistakenly named "L1_DoubleTkMuon_17_8"
+process.L1T_DoubleTkMuon_15_7 = cms.Path(
+    process.hltL1TkDoubleMuFiltered7
+    + process.hltL1TkSingleMuFiltered15
+    + process.hltDoubleMuon7DZ1p0
 )
-# process.L1T_TkMu5TkMu3TkMu3 - cms.Path()
+process.L1T_TripleTkMuon_5_3_3 = cms.Path(
+    process.hltL1TripleMuFiltered3
+    + process.hltL1SingleMuFiltered5
+    + process.hltTripleMuon3DZ1p0
+    + process.hltTripleMuon3DR0
+)
 
 ### Paths with the same name as the original EGamma
 process.L1T_TkEle36 = cms.Path(process.L1TTkEle36Sequence)
