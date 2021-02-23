@@ -8,6 +8,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 ### GlobalTag
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
+
 process.GlobalTag = GlobalTag(process.GlobalTag, "111X_mcRun4_realistic_T15_v4", "")
 
 ### Rationale: we have to build this configuration file on top
