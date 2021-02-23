@@ -2,8 +2,35 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("L1TSkimming")
 
+### Basic loads
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
+### GlobalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, "111X_mcRun4_realistic_T15_v4", "")
+
+### Rationale: we have to build this configuration file on top
+### of something. We choose to do it on top of EGamma,
+### since at this point in time (Feb-21) the Muon and JetMET
+### customisations are fairly simple
+
+### Reference: https://gitlab.cern.ch/sharper/EgHLTPhase2/-/blob/master/Menus/egammaBasicMenu.py
+
+### Load the setup a la EGamma
+### Notice that you should have followed the setup here:
+### https://gitlab.cern.ch/sharper/EgHLTPhase2/-/tree/master
+
+import HLTrigger.PhaseII.EGamma.Tools.hlt_config_tools as eghlt_tools
+
+eghlt_tools.load_all(process, "HLTrigger.PhaseII.EGamma.PSets")
+process.load("HLTrigger.PhaseII.EGamma.ESSources.essources_cff")
+process.load("HLTrigger.PhaseII.EGamma.ESProducers.esproducers_cff")
+process.load("HLTrigger.PhaseII.EGamma.ESProducers.esproducers_hlt_cff")
+process.prefer("siPixelFakeGainOfflineESSource")
+process.prefer("hltTTRBWR")
+process.es_prefer_ppsDBESSource = cms.ESPrefer("PoolDBESSource", "ppsDBESSource")
+process.es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
 
 process.maxEvents = cms.untracked.PSet(
     input=cms.untracked.int32(2849),
@@ -45,13 +72,18 @@ process.source = cms.Source(
     ),
 )
 
-### GlobalTag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.GlobalTag import GlobalTag
-
-process.GlobalTag = GlobalTag(process.GlobalTag, "111X_mcRun4_realistic_T15_v4", "")
+### L1T ###
+process.load("HLTrigger.PhaseII.EGamma.Sequences.HLTL1Sequence_cff")
 
 ### MUON ###
+
+### Reference: https://github.com/khaosmos93/CMSPhase2MuonHLT/blob/master/example_cfgs/HLT_Phase2_example_menu.py
+### Set the L1Tracks explicitly
+process.L1TkMuons.L1TrackInputTag = cms.InputTag(
+    "TTTracksFromTrackletEmulation", "Level1TTTracks", "RECO"
+)
+### Apply quality cuts by default
+process.L1TkMuons.applyQualityCuts = cms.bool(True)
 
 process.hltL1TkSingleMuFiltered22 = cms.EDFilter(
     "L1TTkMuonFilter",
@@ -64,7 +96,7 @@ process.hltL1TkSingleMuFiltered22 = cms.EDFilter(
         endcap=cms.vdouble(0.864715, 1.03215, 0.0),
         overlap=cms.vdouble(0.920897, 1.03712, 0.0),
     ),
-    inputTag=cms.InputTag("L1TkMuons"),
+    inputTag=cms.InputTag("L1TkMuons", "", "L1TSkimming"),
     saveTags=cms.bool(True),
 )
 
@@ -79,7 +111,7 @@ process.hltL1TkSingleMuFiltered15 = cms.EDFilter(
         endcap=cms.vdouble(0.864715, 1.03215, 0.0),
         overlap=cms.vdouble(0.920897, 1.03712, 0.0),
     ),
-    inputTag=cms.InputTag("L1TkMuons"),
+    inputTag=cms.InputTag("L1TkMuons", "", "L1TSkimming"),
     saveTags=cms.bool(True),
 )
 
@@ -94,7 +126,7 @@ process.hltL1TkDoubleMuFiltered7 = cms.EDFilter(
         endcap=cms.vdouble(0.864715, 1.03215, 0.0),
         overlap=cms.vdouble(0.920897, 1.03712, 0.0),
     ),
-    inputTag=cms.InputTag("L1TkMuons"),
+    inputTag=cms.InputTag("L1TkMuons", "", "L1TSkimming"),
     saveTags=cms.bool(True),
 )
 
@@ -107,8 +139,8 @@ process.hltDoubleMuon7DZ1p0 = cms.EDFilter(
     checkSC=cms.bool(False),
     inputTag1=cms.InputTag("hltL1TkDoubleMuFiltered7"),
     inputTag2=cms.InputTag("hltL1TkDoubleMuFiltered7"),
-    originTag1=cms.VInputTag("L1TkMuons"),
-    originTag2=cms.VInputTag("L1TkMuons"),
+    originTag1=cms.VInputTag("L1TkMuons::L1TSkimming"),
+    originTag2=cms.VInputTag("L1TkMuons::L1TSkimming"),
     saveTags=cms.bool(True),
     triggerType1=cms.int32(-114),
     triggerType2=cms.int32(-114),
@@ -125,7 +157,7 @@ process.hltL1TripleMuFiltered3 = cms.EDFilter(
         endcap=cms.vdouble(0.864715, 1.03215, 0.0),
         overlap=cms.vdouble(0.920897, 1.03712, 0.0),
     ),
-    inputTag=cms.InputTag("L1TkMuons"),
+    inputTag=cms.InputTag("L1TkMuons", "", "L1TSkimming"),
     saveTags=cms.bool(True),
 )
 
@@ -140,7 +172,7 @@ process.hltL1SingleMuFiltered5 = cms.EDFilter(
         endcap=cms.vdouble(0.864715, 1.03215, 0.0),
         overlap=cms.vdouble(0.920897, 1.03712, 0.0),
     ),
-    inputTag=cms.InputTag("L1TkMuons"),
+    inputTag=cms.InputTag("L1TkMuons", "", "L1TSkimming"),
     saveTags=cms.bool(True),
 )
 
@@ -153,8 +185,8 @@ process.hltTripleMuon3DZ1p0 = cms.EDFilter(
     checkSC=cms.bool(False),
     inputTag1=cms.InputTag("hltL1TripleMuFiltered3"),
     inputTag2=cms.InputTag("hltL1TripleMuFiltered3"),
-    originTag1=cms.VInputTag("L1TkMuons"),
-    originTag2=cms.VInputTag("L1TkMuons"),
+    originTag1=cms.VInputTag("L1TkMuons::L1TSkimming"),
+    originTag2=cms.VInputTag("L1TkMuons::L1TSkimming"),
     saveTags=cms.bool(True),
     triggerType1=cms.int32(-114),
     triggerType2=cms.int32(-114),
@@ -166,8 +198,8 @@ process.hltTripleMuon3DR0 = cms.EDFilter(
     MinN=cms.int32(3),
     inputTag1=cms.InputTag("hltL1TripleMuFiltered3"),
     inputTag2=cms.InputTag("hltL1TripleMuFiltered3"),
-    originTag1=cms.VInputTag("L1TkMuons"),
-    originTag2=cms.VInputTag("L1TkMuons"),
+    originTag1=cms.VInputTag("L1TkMuons::L1TSkimming"),
+    originTag2=cms.VInputTag("L1TkMuons::L1TSkimming"),
     saveTags=cms.bool(True),
 )
 
@@ -430,6 +462,8 @@ process.L1TTkIsoEm36Sequence = cms.Sequence(process.L1TkIsoEmSingle36Filter)
 
 ### JETMET ###
 
+### Reference: https://github.com/missirol/JMETriggerAnalysis/blob/phase2/Common/python/hltPhase2_L1T.py
+### Set the L1jets explicitly
 from L1Trigger.L1CaloTrigger.Phase1L1TJets_cff import (
     Phase1L1TJetProducer,
     Phase1L1TJetCalibrator,
@@ -493,37 +527,80 @@ process.l1tPFPuppiMET220off = cms.EDFilter(
 )
 
 ### PATHS ###
+process.HLTL1TPath = cms.Path(process.HLTL1Sequence)
 
 ### Paths with the same name as the original Muons
 ### EXCEPT I changed "L1_" to "L1T_"
-process.L1T_SingleTkMuon_22 = cms.Path(process.hltL1TkSingleMuFiltered22)
+process.L1T_SingleTkMuon_22 = cms.Path(
+    process.HLTL1Sequence + process.hltL1TkSingleMuFiltered22
+)
 # This path was mistakenly named "L1_DoubleTkMuon_17_8"
 process.L1T_DoubleTkMuon_15_7 = cms.Path(
-    process.hltL1TkDoubleMuFiltered7
+    process.HLTL1Sequence
+    + process.hltL1TkDoubleMuFiltered7
     + process.hltL1TkSingleMuFiltered15
     + process.hltDoubleMuon7DZ1p0
 )
 process.L1T_TripleTkMuon_5_3_3 = cms.Path(
-    process.hltL1TripleMuFiltered3
+    process.HLTL1Sequence
+    + process.hltL1TripleMuFiltered3
     + process.hltL1SingleMuFiltered5
     + process.hltTripleMuon3DZ1p0
     + process.hltTripleMuon3DR0
 )
 
 ### Paths with the same name as the original EGamma
-process.L1T_TkEle36 = cms.Path(process.L1TTkEle36Sequence)
-process.L1T_TkIsoEle28 = cms.Path(process.L1TTkIsoEle28Sequence)
-process.L1T_TkEle25TkEle12 = cms.Path(process.L1TTkEle25TkEle12Sequence)
-process.L1T_TkEm51 = cms.Path(process.L1TTkEm51Sequence)
-process.L1T_TkEm37TkEm24 = cms.Path(process.L1TTkEm37TkEm24Sequence)
-process.L1T_TkIsoEm36 = cms.Path(process.L1TTkIsoEm36Sequence)
-process.L1T_TkIsoEm22TkIsoEm12 = cms.Path(process.L1TTkIsoEm22TkIsoEm12Sequence)
+process.L1T_TkEle36 = cms.Path(process.HLTL1Sequence + process.L1TTkEle36Sequence)
+process.L1T_TkIsoEle28 = cms.Path(process.HLTL1Sequence + process.L1TTkIsoEle28Sequence)
+process.L1T_TkEle25TkEle12 = cms.Path(
+    process.HLTL1Sequence + process.L1TTkEle25TkEle12Sequence
+)
+process.L1T_TkEm51 = cms.Path(process.HLTL1Sequence + process.L1TTkEm51Sequence)
+process.L1T_TkEm37TkEm24 = cms.Path(
+    process.HLTL1Sequence + process.L1TTkEm37TkEm24Sequence
+)
+process.L1T_TkIsoEm36 = cms.Path(process.HLTL1Sequence + process.L1TTkIsoEm36Sequence)
+process.L1T_TkIsoEm22TkIsoEm12 = cms.Path(
+    process.HLTL1Sequence + process.L1TTkIsoEm22TkIsoEm12Sequence
+)
 
 ### Paths with the same name as original JME
 process.L1T_SinglePFPuppiJet230off = cms.Path(
-    process.l1tReconstructionSeq + process.l1tSinglePFPuppiJet230off
+    process.HLTL1Sequence
+    + process.l1tReconstructionSeq
+    + process.l1tSinglePFPuppiJet230off
 )
-process.L1T_PFPuppiMET220off = cms.Path(process.l1tPFPuppiMET220off)
+process.L1T_PFPuppiMET220off = cms.Path(
+    process.HLTL1Sequence + process.l1tPFPuppiMET220off
+)
 process.L1T_PFPuppiHT450off = cms.Path(
-    process.l1tReconstructionSeq + process.l1tPFPuppiHT + process.l1tPFPuppiHT450off
+    process.HLTL1Sequence
+    + process.l1tReconstructionSeq
+    + process.l1tPFPuppiHT
+    + process.l1tPFPuppiHT450off
 )
+
+### SCHEDULE ###
+process.schedule = cms.Schedule(
+    *[
+        process.HLTL1TPath,
+        process.L1T_SingleTkMuon_22,
+        process.L1T_DoubleTkMuon_15_7,
+        process.L1T_TripleTkMuon_5_3_3,
+        process.L1T_TkEle36,
+        process.L1T_TkIsoEle28,
+        process.L1T_TkEle25TkEle12,
+        process.L1T_TkEm51,
+        process.L1T_TkEm37TkEm24,
+        process.L1T_TkIsoEm36,
+        process.L1T_TkIsoEm22TkIsoEm12,
+        process.L1T_SinglePFPuppiJet230off,
+        process.L1T_PFPuppiMET220off,
+        process.L1T_PFPuppiHT450off,
+    ]
+)
+
+### Aging
+from SLHCUpgradeSimulations.Configuration.aging import customise_aging_1000
+
+customise_aging_1000(process)
