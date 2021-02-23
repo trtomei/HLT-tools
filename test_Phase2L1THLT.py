@@ -6,9 +6,11 @@ process.load("Configuration.StandardSequences.Services_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input=cms.untracked.int32(-1),
+    input=cms.untracked.int32(2849),
     output=cms.optional.untracked.allowed(cms.int32, cms.PSet),
 )
+
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 
@@ -16,7 +18,27 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 process.source = cms.Source(
     "PoolSource",
     fileNames=cms.untracked.vstring(
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/TTToSemiLepton_TuneCP5_14TeV-powheg-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/120000/FFB3F470-61B4-4545-985C-AE91A6DF4BE3.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E60846B8-DAFC-E347-954A-99B926A15310.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E64B49BC-1C1E-B248-8301-BFECE2318AFA.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E66C842A-081D-FC44-AAE7-436CB64BEDEA.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E724F136-35D0-D549-8409-70E88D9C2F53.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E7B29780-A1C8-5241-8050-79DACDAA6425.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E7EEF490-ACD8-DD4E-86E4-1190990136AD.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E804EB3A-5F40-A949-8283-1427ACCC7229.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E8187E32-9379-7444-B910-867E2DB709DA.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E8448DF4-4717-F74D-A3DD-3F580280951D.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E8CE39AA-0AAF-8744-8CDA-E1DA9DD18F81.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FBC3DC30-72C0-9442-9E6A-DFC89D38DE0C.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FBE51CD4-E125-F347-900D-25D780323C00.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FC6EDB5C-160D-E14B-B0F7-B34A15A8649A.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FC78AF20-8C11-8E4D-A2D2-9011278E1DCF.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FCE2A878-D3BB-4E44-A274-63FDA61D6C0A.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FD2C7F36-5BEF-8645-8F73-3B645C45F986.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FF2DB685-2ABB-1545-9F5A-754AABF28F96.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FF661451-502A-FC47-A868-A9F2071874CB.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FFA7BAAE-A081-C147-8FA3-5869DD659033.root",
+        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FFB0B020-7606-3B46-AB92-23A357884F6C.root",
+        # "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/TTToSemiLepton_TuneCP5_14TeV-powheg-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/120000/FFB3F470-61B4-4545-985C-AE91A6DF4BE3.root",
         # "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v2/280000/015FB6F1-59B4-304C-B540-2392A983A97D.root"
         # "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/DYToLL_M-50_TuneCP5_14TeV-pythia8/FEVT/PU200_pilot_111X_mcRun4_realistic_T15_v1-v1/270000/FF7BF0E2-1380-2D48-BB19-F79E6907CD5D.root",
         # "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/SingleElectron_PT2to200/FEVT/PU200_111X_mcRun4_realistic_T15_v1_ext2-v1/270000/0064D31F-F48B-3144-8CB9-17F820065E01.root",
