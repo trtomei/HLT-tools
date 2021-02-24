@@ -605,3 +605,18 @@ process.schedule = cms.Schedule(
 from SLHCUpgradeSimulations.Configuration.aging import customise_aging_1000
 
 customise_aging_1000(process)
+
+### Output
+process.hltOutputTot = cms.OutputModule(
+    "PoolOutputModule",
+    fileName=cms.untracked.string("skim.root"),
+    SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring()),
+)
+
+process.hltOutputTot.SelectEvents.SelectEvents = cms.vstring()
+for pathname in process.pathNames().split():
+    if pathname.startswith("L1T_"):
+        print "filtering on", pathname
+        process.hltOutputTot.SelectEvents.SelectEvents.append(pathname)
+
+process.e1 = cms.EndPath(process.hltOutputTot)
