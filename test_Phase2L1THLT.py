@@ -581,26 +581,6 @@ process.L1T_PFPuppiHT450off = cms.Path(
     + process.l1tPFPuppiHT450off
 )
 
-### SCHEDULE ###
-process.schedule = cms.Schedule(
-    *[
-        process.HLTL1TPath,
-        process.L1T_SingleTkMuon_22,
-        process.L1T_DoubleTkMuon_15_7,
-        process.L1T_TripleTkMuon_5_3_3,
-        process.L1T_TkEle36,
-        process.L1T_TkIsoEle28,
-        process.L1T_TkEle25TkEle12,
-        process.L1T_TkEm51,
-        process.L1T_TkEm37TkEm24,
-        process.L1T_TkIsoEm36,
-        process.L1T_TkIsoEm22TkIsoEm12,
-        process.L1T_SinglePFPuppiJet230off,
-        process.L1T_PFPuppiMET220off,
-        process.L1T_PFPuppiHT450off,
-    ]
-)
-
 ### Aging
 from SLHCUpgradeSimulations.Configuration.aging import customise_aging_1000
 
@@ -620,3 +600,24 @@ for pathname in process.pathNames().split():
         process.hltOutputTot.SelectEvents.SelectEvents.append(pathname)
 
 process.e1 = cms.EndPath(process.hltOutputTot)
+
+### SCHEDULE ###
+process.schedule = cms.Schedule(
+    *[
+        process.HLTL1TPath,
+        process.L1T_SingleTkMuon_22,
+        process.L1T_DoubleTkMuon_15_7,
+        process.L1T_TripleTkMuon_5_3_3,
+        process.L1T_TkEle36,
+        process.L1T_TkIsoEle28,
+        process.L1T_TkEle25TkEle12,
+        process.L1T_TkEm51,
+        process.L1T_TkEm37TkEm24,
+        process.L1T_TkIsoEm36,
+        process.L1T_TkIsoEm22TkIsoEm12,
+        process.L1T_SinglePFPuppiJet230off,
+        process.L1T_PFPuppiMET220off,
+        process.L1T_PFPuppiHT450off,
+        process.e1,
+    ]
+)
