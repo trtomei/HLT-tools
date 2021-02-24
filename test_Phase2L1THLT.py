@@ -1,6 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("L1TSkimming")
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing ('analysis')
+options.register('filterOutput',True,options.multiplicity.singleton,options.varType.bool,"filter the outputed edm")
+options.register('runL1HPSTaus',True,options.multiplicity.singleton,options.varType.bool,"runL1HPSTaus")
+options.register('nrThreads',2,options.multiplicity.singleton,options.varType.int,"number of threads to use")
+options.parseArguments()
 
 ### Basic loads
 process.load("Configuration.StandardSequences.Services_cff")
@@ -34,44 +40,22 @@ process.es_prefer_ppsDBESSource = cms.ESPrefer("PoolDBESSource", "ppsDBESSource"
 process.es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
 
 process.maxEvents = cms.untracked.PSet(
-    input=cms.untracked.int32(2849),
+    input=cms.untracked.int32(options.maxEvents),
     output=cms.optional.untracked.allowed(cms.int32, cms.PSet),
 )
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
-
-process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
+process.options = cms.untracked.PSet(
+    numberOfStreams = cms.untracked.uint32(options.nrThreads),
+    numberOfThreads = cms.untracked.uint32(options.nrThreads),
+    wantSummary = cms.untracked.bool(True)
+)
 
 ### Input source
 process.source = cms.Source(
     "PoolSource",
-    fileNames=cms.untracked.vstring(
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E60846B8-DAFC-E347-954A-99B926A15310.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E64B49BC-1C1E-B248-8301-BFECE2318AFA.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E66C842A-081D-FC44-AAE7-436CB64BEDEA.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E724F136-35D0-D549-8409-70E88D9C2F53.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E7B29780-A1C8-5241-8050-79DACDAA6425.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E7EEF490-ACD8-DD4E-86E4-1190990136AD.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E804EB3A-5F40-A949-8283-1427ACCC7229.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E8187E32-9379-7444-B910-867E2DB709DA.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E8448DF4-4717-F74D-A3DD-3F580280951D.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/E8CE39AA-0AAF-8744-8CDA-E1DA9DD18F81.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FBC3DC30-72C0-9442-9E6A-DFC89D38DE0C.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FBE51CD4-E125-F347-900D-25D780323C00.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FC6EDB5C-160D-E14B-B0F7-B34A15A8649A.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FC78AF20-8C11-8E4D-A2D2-9011278E1DCF.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FCE2A878-D3BB-4E44-A274-63FDA61D6C0A.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FD2C7F36-5BEF-8645-8F73-3B645C45F986.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FF2DB685-2ABB-1545-9F5A-754AABF28F96.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FF661451-502A-FC47-A868-A9F2071874CB.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FFA7BAAE-A081-C147-8FA3-5869DD659033.root",
-        "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/MinBias_TuneCP5_14TeV-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/110000/FFB0B020-7606-3B46-AB92-23A357884F6C.root",
-        # "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/TTToSemiLepton_TuneCP5_14TeV-powheg-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v1/120000/FFB3F470-61B4-4545-985C-AE91A6DF4BE3.root",
-        # "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/FEVT/PU200_111X_mcRun4_realistic_T15_v1-v2/280000/015FB6F1-59B4-304C-B540-2392A983A97D.root"
-        # "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/DYToLL_M-50_TuneCP5_14TeV-pythia8/FEVT/PU200_pilot_111X_mcRun4_realistic_T15_v1-v1/270000/FF7BF0E2-1380-2D48-BB19-F79E6907CD5D.root",
-        # "/store/mc/Phase2HLTTDRSummer20ReRECOMiniAOD/SingleElectron_PT2to200/FEVT/PU200_111X_mcRun4_realistic_T15_v1_ext2-v1/270000/0064D31F-F48B-3144-8CB9-17F820065E01.root",
-    ),
+    fileNames=cms.untracked.vstring()
 )
+eghlt_tools.setInputFiles(process,inputFiles=options.inputFiles,verbose=False)
 
 ### L1T ###
 process.load("HLTrigger.PhaseII.EGamma.Sequences.HLTL1Sequence_cff")
@@ -648,6 +632,144 @@ process.l1tDoublePFPuppiJets112offMaxDeta1p6 = cms.EDFilter(
     MinDphi=cms.double(0.0),
 )
 
+### Taus ###
+
+runL1HPSTaus = True
+if runL1HPSTaus:
+    process.HLTL1TauSequence = cms.Sequence(process.HLTL1Sequence)
+    
+    #process.load("L1Trigger.Phase2L1ParticleFlow.pfTracksFromL1Tracks_cfi")
+    #process.HLTL1TauSequence += process.pfTracksFromL1Tracks
+
+    #process.load("L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff")
+    from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+    _ak4PFJets      =  ak4PFJets.clone(doAreaFastjet = False)
+    process.ak4PFL1Calo    = _ak4PFJets.clone(src = 'l1pfCandidates:Calo')
+    process.ak4PFL1PF      = _ak4PFJets.clone(src = 'l1pfCandidates:PF')
+    process.ak4PFL1Puppi   = _ak4PFJets.clone(src = 'l1pfCandidates:Puppi')
+
+    from L1Trigger.Phase2L1ParticleFlow.L1SeedConePFJetProducer_cfi import L1SeedConePFJetProducer
+    process.scPFL1PF    = L1SeedConePFJetProducer.clone(L1PFObjects = 'l1pfCandidates:PF')
+    process.scPFL1Puppi = L1SeedConePFJetProducer.clone(L1PFObjects = 'l1pfCandidates:Puppi')
+
+    _correctedJets = cms.EDProducer("L1TCorrectedPFJetProducer", 
+                                    jets = cms.InputTag("_tag_"),
+                                    correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs.PU200_110X.root"),
+                                    correctorDir = cms.string("_dir_"),
+                                    copyDaughters = cms.bool(False)
+                                )        
+    process.ak4PFL1CaloCorrected = _correctedJets.clone(jets = 'ak4PFL1Calo', correctorDir = 'L1CaloJets')
+    process.ak4PFL1PFCorrected = _correctedJets.clone(jets = 'ak4PFL1PF', correctorDir = 'L1PFJets')
+    process.ak4PFL1PuppiCorrected = _correctedJets.clone(jets = 'ak4PFL1Puppi', correctorDir = 'L1PuppiJets')
+
+
+    process.l1PFJets = cms.Sequence( process.ak4PFL1Calo + process.ak4PFL1PF + process.ak4PFL1Puppi +
+                             process.ak4PFL1CaloCorrected + process.ak4PFL1PFCorrected + 
+                             process.ak4PFL1PuppiCorrected +
+                             process.scPFL1PF + process.scPFL1Puppi
+                         )
+    process.HLTL1TauSequence += process.l1PFJets
+
+    process.kt6L1PFJetsPF = process.ak4PFL1PF.clone(
+        jetAlgorithm = cms.string("Kt"),
+        rParam       = cms.double(0.6),
+        doRhoFastjet = cms.bool(True),
+        Rho_EtaMax   = cms.double(3.0)
+    )
+    process.HLTL1TauSequence += process.kt6L1PFJetsPF
+    process.l1pfNeutralCandidatesPF = cms.EDFilter("L1TPFCandSelector",
+                                                   src = cms.InputTag('l1pfCandidates:PF'),
+                                                   cut = cms.string("pdgId = 22"), # CV: cms.string("id = Photon") does not work (does not select any l1t::PFCandidates)                                                                                                                                                       
+                                                   filter = cms.bool(False)
+                                       )
+    process.HLTL1TauSequence += process.l1pfNeutralCandidatesPF
+    process.kt6L1PFJetsNeutralsPF = process.kt6L1PFJetsPF.clone(
+        src = cms.InputTag('l1pfNeutralCandidatesPF')
+    )
+    process.HLTL1TauSequence += process.kt6L1PFJetsNeutralsPF
+    
+    process.kt6L1PFJetsPuppi = process.kt6L1PFJetsPF.clone(
+        src = cms.InputTag('l1pfCandidates:Puppi')
+    )
+    process.HLTL1TauSequence += process.kt6L1PFJetsPuppi
+    process.l1pfNeutralCandidatesPuppi = process.l1pfNeutralCandidatesPF.clone(
+        src = cms.InputTag('l1pfCandidates:Puppi'),
+    )
+    process.HLTL1TauSequence += process.l1pfNeutralCandidatesPuppi
+    process.kt6L1PFJetsNeutralsPuppi = process.kt6L1PFJetsPuppi.clone(
+        src = cms.InputTag('l1pfNeutralCandidatesPuppi')
+    )
+    process.HLTL1TauSequence += process.kt6L1PFJetsNeutralsPuppi
+    
+    # SB: produce L1 HPS PF Tau objects    
+    process.load("L1Trigger.Phase2L1Taus.L1HPSPFTauProducerPF_cfi")
+    process.load("L1Trigger.Phase2L1Taus.L1HPSPFTauProducerPuppi_cfi")
+    for useStrips in [ True, False ]:
+        moduleNameBase = "L1HPSPFTauProducer"
+        if useStrips:
+            moduleNameBase += "WithStrips"
+        else:
+            moduleNameBase += "WithoutStrips"
+ 
+        moduleNamePF = moduleNameBase + "PF"
+        modulePF = process.L1HPSPFTauProducerPF.clone(
+            useStrips = cms.bool(useStrips),
+            applyPreselection = cms.bool(False),
+            debug = cms.untracked.bool(False)
+        )
+        setattr(process, moduleNamePF, modulePF)
+        process.HLTL1TauSequence += getattr(process, moduleNamePF)
+ 
+    
+    process.hltL1DoubleHPSTau17 = cms.EDFilter("L1THPSPFTauFilter",
+        MaxEta=cms.double(2.4),
+        MinEta=cms.double(-2.4),
+        MinN=cms.int32(2),
+        MinPt=cms.double(17.0),
+        MaxRelChargedIso = cms.double(0.05),
+        MinLeadTrackPt = cms.double(0),
+        inputTag=cms.InputTag("L1HPSPFTauProducerWithStripsPF", "", "L1TSkimming"),
+        saveTags=cms.bool(True),
+    )
+    process.hltL1SingleHPSTau53 = cms.EDFilter("L1THPSPFTauFilter",
+        MaxEta=cms.double(2.4),
+        MinEta=cms.double(-2.4),
+        MinN=cms.int32(1),
+        MinPt=cms.double(53.0),
+        MaxRelChargedIso = cms.double(0.05),
+        MinLeadTrackPt = cms.double(0),
+        inputTag=cms.InputTag("L1HPSPFTauProducerWithStripsPF", "", "L1TSkimming"),
+        saveTags=cms.bool(True),
+    )
+
+process.hltL1DoubleNNTau52 = cms.EDFilter("L1TPFTauFilter",
+                                          MaxEta=cms.double(2.172),
+                                          MinEta=cms.double(-2.172),
+                                          MinN=cms.int32(2),
+                                          MinPt=cms.double(52.0),
+                                          PassLooseNN = cms.int32(0),
+                                          inputTag=cms.InputTag("l1NNTauProducerPuppi", "L1PFTausNN", "L1TSkimming"),
+                                          Scalings = cms.PSet(
+                                              barrel=cms.vdouble(9.54135, 1.73403, 0),
+                                              endcap=cms.vdouble(36.157, 3.83749, 0),
+                                          ),
+                                          saveTags=cms.bool(True),
+                                       )
+process.hltL1SingleNNTau150 = cms.EDFilter("L1TPFTauFilter",
+                                           MaxEta=cms.double(2.172),
+                                           MinEta=cms.double(-2.172),
+                                           MinN=cms.int32(1),
+                                           MinPt=cms.double(150.0),
+                                           PassLooseNN = cms.int32(0),
+                                           inputTag=cms.InputTag("l1NNTauProducerPuppi", "L1PFTausNN", "L1TSkimming"),
+                                           Scalings = cms.PSet(
+                                               barrel=cms.vdouble(9.54135, 1.73403, 0),
+                                               endcap=cms.vdouble(36.157, 3.83749, 0),
+                                           ),
+                                           saveTags=cms.bool(True),
+                                       )
+
+
 ### PATHS ###
 process.HLTL1TPath = cms.Path(process.HLTL1Sequence)
 
@@ -723,15 +845,37 @@ process.L1T_DoublePFPuppiJets112_2p4_DEta1p6 = cms.Path(
     + process.l1tDoublePFPuppiJets112offMaxDeta1p6
 )
 
+process.L1T_DoubleNNTau52 = cms.Path(
+    process.HLTL1Sequence +
+    process.hltL1DoubleNNTau52
+)
+process.L1T_SingleNNTau150 = cms.Path(
+    process.HLTL1Sequence +
+    process.hltL1SingleNNTau150
+)
+
+if runL1HPSTaus:
+    process.L1T_DoubleHPSTau17 = cms.Path(
+        process.HLTL1TauSequence +
+        process.hltL1DoubleHPSTau17
+    )
+    process.L1T_SingleHPSTau53 = cms.Path(
+        process.HLTL1TauSequence +
+        process.hltL1SingleHPSTau53
+    )
+        
+
 ### Aging
 from SLHCUpgradeSimulations.Configuration.aging import customise_aging_1000
 
 customise_aging_1000(process)
 
+eghlt_tools.customiseMessageLogger(process,reportEvery=20)
+
 ### Output
 process.hltOutputTot = cms.OutputModule(
     "PoolOutputModule",
-    fileName=cms.untracked.string("skim.root"),
+    fileName=cms.untracked.string(options.outputFile),
     SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring()),
 )
 
@@ -741,7 +885,7 @@ for pathname in process.pathNames().split():
         print "filtering on", pathname
         process.hltOutputTot.SelectEvents.SelectEvents.append(pathname)
 
-process.e1 = cms.EndPath(process.hltOutputTot)
+process.outPath = cms.EndPath(process.hltOutputTot)
 
 ### SCHEDULE ###
 process.schedule = cms.Schedule(
@@ -762,6 +906,12 @@ process.schedule = cms.Schedule(
         process.L1T_PFPuppiHT450off,
         process.L1T_PFHT400PT30_QuadPFPuppiJet_70_55_40_40_2p4,
         process.L1T_DoublePFPuppiJets112_2p4_DEta1p6,
-        process.e1,
+        process.L1T_DoubleNNTau52,
+        process.L1T_SingleNNTau150,
+        process.outPath,
     ]
 )
+if options.runL1HPSTaus:
+    process.schedule.append(process.L1T_SingleHPSTau53 )
+    process.schedule.append(process.L1T_DoubleHPSTau17 )
+    
