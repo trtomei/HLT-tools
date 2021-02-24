@@ -527,6 +527,127 @@ process.l1tPFPuppiMET220off = cms.EDFilter(
     MinPt=cms.double(220.0),
 )
 
+### BTAG ###
+
+### Reference: https://github.com/johnalison/RecoBTag-PerformanceMeasurements/blob/PhaseIIOnline/python/Configs/testTriggerPaths_cfg.py
+### We use the L1jets explicitly set by JetMET
+
+process.l1tPFPuppiHTMaxEta2p4 = cms.EDProducer(
+    "HLTHtMhtProducer",
+    jetsLabel=cms.InputTag(
+        "l1tSlwPFPuppiJetsCorrected", "Phase1L1TJetFromPfCandidates"
+    ),
+    minPtJetHt=cms.double(30.0),
+    maxEtaJetHt=cms.double(2.4),
+)
+
+process.l1tPFPuppiHT400offMaxEta2p4 = cms.EDFilter(
+    "L1TEnergySumFilter",
+    inputTag=cms.InputTag("l1tPFPuppiHTMaxEta2p4"),
+    Scalings=cms.PSet(
+        theScalings=cms.vdouble(50.0182, 1.0961, 0),  # PFPhase1HT090OfflineEtCut
+    ),
+    TypeOfSum=cms.string("HT"),
+    MinPt=cms.double(400.0),
+)
+
+process.l1t1PFPuppiJet70offMaxEta2p4 = cms.EDFilter(
+    "L1TJetFilter",
+    inputTag=cms.InputTag("l1tSlwPFPuppiJetsCorrected", "Phase1L1TJetFromPfCandidates"),
+    Scalings=cms.PSet(
+        barrel=cms.vdouble(11.1254, 1.40627, 0),
+        overlap=cms.vdouble(24.8375, 1.4152, 0),
+        endcap=cms.vdouble(42.4039, 1.33052, 0),
+    ),
+    MinPt=cms.double(70.0),
+    MinEta=cms.double(-2.4),
+    MaxEta=cms.double(2.4),
+    MinN=cms.int32(1),
+)
+
+process.l1t2PFPuppiJet55offMaxEta2p4 = cms.EDFilter(
+    "L1TJetFilter",
+    inputTag=cms.InputTag("l1tSlwPFPuppiJetsCorrected", "Phase1L1TJetFromPfCandidates"),
+    Scalings=cms.PSet(
+        barrel=cms.vdouble(11.1254, 1.40627, 0),
+        overlap=cms.vdouble(24.8375, 1.4152, 0),
+        endcap=cms.vdouble(42.4039, 1.33052, 0),
+    ),
+    MinPt=cms.double(55.0),
+    MinEta=cms.double(-2.4),
+    MaxEta=cms.double(2.4),
+    MinN=cms.int32(2),
+)
+
+process.l1t4PFPuppiJet40offMaxEta2p4 = cms.EDFilter(
+    "L1TJetFilter",
+    inputTag=cms.InputTag("l1tSlwPFPuppiJetsCorrected", "Phase1L1TJetFromPfCandidates"),
+    Scalings=cms.PSet(
+        barrel=cms.vdouble(11.1254, 1.40627, 0),
+        overlap=cms.vdouble(24.8375, 1.4152, 0),
+        endcap=cms.vdouble(42.4039, 1.33052, 0),
+    ),
+    MinPt=cms.double(40.0),
+    MinEta=cms.double(-2.4),
+    MaxEta=cms.double(2.4),
+    MinN=cms.int32(4),
+)
+
+process.l1t4PFPuppiJet25OnlineMaxEta2p4 = cms.EDFilter(
+    "L1TJetFilter",
+    inputTag=cms.InputTag("l1tSlwPFPuppiJetsCorrected", "Phase1L1TJetFromPfCandidates"),
+    # Scalings = cms.PSet( ## no scaling
+    #   barrel = cms.vdouble(11.1254, 1.40627, 0),
+    #   overlap = cms.vdouble(24.8375, 1.4152, 0),
+    #   endcap = cms.vdouble(42.4039, 1.33052, 0),
+    # ),
+    MinPt=cms.double(25.0),
+    MinEta=cms.double(-2.4),
+    MaxEta=cms.double(2.4),
+    MinN=cms.int32(4),
+)
+
+process.l1tDoublePFPuppiJet112offMaxEta2p4 = cms.EDFilter(
+    "L1TJetFilter",
+    inputTag=cms.InputTag("l1tSlwPFPuppiJetsCorrected", "Phase1L1TJetFromPfCandidates"),
+    Scalings=cms.PSet(
+        barrel=cms.vdouble(11.1254, 1.40627, 0),
+        overlap=cms.vdouble(24.8375, 1.4152, 0),
+        endcap=cms.vdouble(42.4039, 1.33052, 0),
+    ),
+    MinPt=cms.double(112.0),
+    MinEta=cms.double(-2.4),
+    MaxEta=cms.double(2.4),
+    MinN=cms.int32(2),
+    saveTags=cms.bool(True),
+)
+
+process.l1tDoublePFPuppiJets112offMaxDeta1p6 = cms.EDFilter(
+    "HLT2CaloJetCaloJet",
+    saveTags=cms.bool(True),
+    MinMinv=cms.double(0.0),
+    originTag2=cms.VInputTag(
+        "l1tSlwPFPuppiJetsCorrected::Phase1L1TJetFromPfCandidates"
+    ),
+    MinDelR=cms.double(0.0),
+    MinPt=cms.double(0.0),
+    MinN=cms.int32(1),
+    originTag1=cms.VInputTag(
+        "l1tSlwPFPuppiJetsCorrected::Phase1L1TJetFromPfCandidates"
+    ),
+    triggerType1=cms.int32(-116),
+    triggerType2=cms.int32(-116),
+    MaxMinv=cms.double(1.0e7),
+    MinDeta=cms.double(-1000.0),
+    MaxDelR=cms.double(1000.0),
+    inputTag1=cms.InputTag("l1tDoublePFPuppiJet112offMaxEta2p4"),
+    inputTag2=cms.InputTag("l1tDoublePFPuppiJet112offMaxEta2p4"),
+    MaxDphi=cms.double(1.0e7),
+    MaxDeta=cms.double(1.6),
+    MaxPt=cms.double(1.0e7),
+    MinDphi=cms.double(0.0),
+)
+
 ### PATHS ###
 process.HLTL1TPath = cms.Path(process.HLTL1Sequence)
 
@@ -581,6 +702,27 @@ process.L1T_PFPuppiHT450off = cms.Path(
     + process.l1tPFPuppiHT450off
 )
 
+### Paths NOT with the same name as original BTV
+### (Made changes to accurately reflect path)
+### Also: renamed "L1_" to "L1T_"
+process.L1T_PFHT400PT30_QuadPFPuppiJet_70_55_40_40_2p4 = cms.Path(
+    process.HLTL1Sequence
+    + process.l1tReconstructionSeq
+    + process.l1tPFPuppiHTMaxEta2p4
+    + process.l1tPFPuppiHT400offMaxEta2p4
+    + process.l1t1PFPuppiJet70offMaxEta2p4
+    + process.l1t2PFPuppiJet55offMaxEta2p4
+    + process.l1t4PFPuppiJet40offMaxEta2p4
+    + process.l1t4PFPuppiJet25OnlineMaxEta2p4
+)
+
+process.L1T_DoublePFPuppiJets112_2p4_DEta1p6 = cms.Path(
+    process.HLTL1Sequence
+    + process.l1tReconstructionSeq
+    + process.l1tDoublePFPuppiJet112offMaxEta2p4
+    + process.l1tDoublePFPuppiJets112offMaxDeta1p6
+)
+
 ### Aging
 from SLHCUpgradeSimulations.Configuration.aging import customise_aging_1000
 
@@ -618,6 +760,8 @@ process.schedule = cms.Schedule(
         process.L1T_SinglePFPuppiJet230off,
         process.L1T_PFPuppiMET220off,
         process.L1T_PFPuppiHT450off,
+        process.L1T_PFHT400PT30_QuadPFPuppiJet_70_55_40_40_2p4,
+        process.L1T_DoublePFPuppiJets112_2p4_DEta1p6,
         process.e1,
     ]
 )
