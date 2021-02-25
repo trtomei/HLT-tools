@@ -722,25 +722,25 @@ if runL1HPSTaus:
  
     
     process.hltL1DoubleHPSTau17 = cms.EDFilter("L1THPSPFTauFilter",
-        MaxEta=cms.double(2.4),
-        MinEta=cms.double(-2.4),
-        MinN=cms.int32(2),
-        MinPt=cms.double(17.0),
-        MaxRelChargedIso = cms.double(0.05),
-        MinLeadTrackPt = cms.double(0),
-        inputTag=cms.InputTag("L1HPSPFTauProducerWithStripsPF", "", "L1TSkimming"),
-        saveTags=cms.bool(True),
-    )
+                                               MaxEta=cms.double(2.172),
+                                               MinEta=cms.double(-2.172),
+                                               MinN=cms.int32(2),
+                                               MinPt=cms.double(17.0),
+                                               MaxRelChargedIso = cms.double(0.1),
+                                               MinLeadTrackPt = cms.double(5),
+                                               inputTag=cms.InputTag("L1HPSPFTauProducerWithStripsPF", "", "L1TSkimming"),
+                                               saveTags=cms.bool(True),
+                                           )
     process.hltL1SingleHPSTau53 = cms.EDFilter("L1THPSPFTauFilter",
-        MaxEta=cms.double(2.4),
-        MinEta=cms.double(-2.4),
-        MinN=cms.int32(1),
-        MinPt=cms.double(53.0),
-        MaxRelChargedIso = cms.double(0.05),
-        MinLeadTrackPt = cms.double(0),
-        inputTag=cms.InputTag("L1HPSPFTauProducerWithStripsPF", "", "L1TSkimming"),
-        saveTags=cms.bool(True),
-    )
+                                               MaxEta=cms.double(2.172),
+                                               MinEta=cms.double(-2.172),
+                                               MinN=cms.int32(1),
+                                               MinPt=cms.double(53.0),
+                                               MaxRelChargedIso = cms.double(0.1),
+                                               MinLeadTrackPt = cms.double(5),
+                                               inputTag=cms.InputTag("L1HPSPFTauProducerWithStripsPF", "", "L1TSkimming"),
+                                               saveTags=cms.bool(True),
+                                           )
 
 process.hltL1DoubleNNTau52 = cms.EDFilter("L1TPFTauFilter",
                                           MaxEta=cms.double(2.172),
