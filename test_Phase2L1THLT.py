@@ -634,8 +634,8 @@ process.l1tDoublePFPuppiJets112offMaxDeta1p6 = cms.EDFilter(
 
 ### Taus ###
 
-runL1HPSTaus = True
-if runL1HPSTaus:
+
+if options.runL1HPSTaus:
     process.HLTL1TauSequence = cms.Sequence(process.HLTL1Sequence)
     
     #process.load("L1Trigger.Phase2L1ParticleFlow.pfTracksFromL1Tracks_cfi")
@@ -714,7 +714,7 @@ if runL1HPSTaus:
         moduleNamePF = moduleNameBase + "PF"
         modulePF = process.L1HPSPFTauProducerPF.clone(
             useStrips = cms.bool(useStrips),
-            applyPreselection = cms.bool(False),
+            applyPreselection = cms.bool(True),
             debug = cms.untracked.bool(False)
         )
         setattr(process, moduleNamePF, modulePF)
@@ -854,7 +854,7 @@ process.L1T_SingleNNTau150 = cms.Path(
     process.hltL1SingleNNTau150
 )
 
-if runL1HPSTaus:
+if options.runL1HPSTaus:
     process.L1T_DoubleHPSTau17 = cms.Path(
         process.HLTL1TauSequence +
         process.hltL1DoubleHPSTau17
@@ -877,12 +877,56 @@ process.hltOutputTot = cms.OutputModule(
     "PoolOutputModule",
     fileName=cms.untracked.string(options.outputFile),
     SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring()),
+    outputCommands = cms.untracked.vstring()
 )
 
 process.hltOutputTot.SelectEvents.SelectEvents = cms.vstring()
+
+eventContentL1 = cms.untracked.vstring(
+    'keep *_l1EGammaEEProducer_*_*',
+    'keep *_L1EGammaClusterEmuProducer_*_*',
+    'keep *_L1TkPhotonsHGC_*_*',
+    'keep *_L1TkPhotonsCrystal_*_*',
+    'keep *_L1TkElectronsEllipticMatchCrystal_*_*',
+    'keep *_L1TkElectronsEllipticMatchHGC_*_*',
+    'keep *_L1TkMuons_*_*',
+    'keep *_l1tSlwPFPuppiJetsCorrected_*_*',
+    'keep *_l1tPFPuppiHT_*_*',
+    'keep *_l1PFMetPuppi_*_*',
+    'keep *_l1tPFPuppiHTMaxEta2p4_*_*',
+    'keep *_L1HPSPFTauProducerWithStripsPF_*_*',
+    'keep *_L1HPSPFTauProducerWithStripsPF_*_*',
+    'keep *_TTTracksFromTrackletEmulation_Level1TTTracks_*',
+    'keep *_l1pf*Candidates_*_*',
+    )
+eventContentL1Only = cms.untracked.vstring(
+    'drop *',
+    )
+eventContentL1Only.extend(eventContentL1)
+
+
+eventContentReduced = cms.untracked.vstring(   
+    'keep *_*_*_SIM',
+    'keep *_*_*_HLT',    
+    'drop *_*_*_RECO',
+    'drop *_*_*_L1',
+    'drop simEcalEBTriggerPrimitiveDigis_*_*_*',
+    'drop TrackingParticles_mix_MergedTrackTruth_HLT',
+    'drop TrackingVertexs_mix_MergedTrackTruth_HLT',
+    'drop TrackingVertexs_mix_InitialVertices_HLT',
+    'drop CaloParticles_mix_MergedCaloTruth_HLT',
+    'drop PCaloHits_g4SimHits_EcalHitsEB_SIM',
+    'drop PCaloHits_g4SimHits_HGCHitsEE_SIM',
+    'drop SimClusters_mix_MergedCaloTruth_HLT',
+    'drop *_me0RecHits_*_*'
+)
+eventContentReduced.extend(eventContentL1)
+   
+
+process.hltOutputTot.outputCommands = cms.untracked.vstring()
+
 for pathname in process.pathNames().split():
     if pathname.startswith("L1T_"):
-        print "filtering on", pathname
         process.hltOutputTot.SelectEvents.SelectEvents.append(pathname)
 
 process.outPath = cms.EndPath(process.hltOutputTot)
@@ -915,3 +959,8 @@ if options.runL1HPSTaus:
     process.schedule.append(process.L1T_SingleHPSTau53 )
     process.schedule.append(process.L1T_DoubleHPSTau17 )
     
+print "eventcontent:"
+print process.hltOutputTot.outputCommands.value()
+print "filter paths:"
+print process.hltOutputTot.SelectEvents.SelectEvents.value()
+print "global tag:",process.GlobalTag.globaltag.value()
