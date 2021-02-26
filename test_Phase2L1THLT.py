@@ -714,7 +714,7 @@ if options.runL1HPSTaus:
         moduleNamePF = moduleNameBase + "PF"
         modulePF = process.L1HPSPFTauProducerPF.clone(
             useStrips = cms.bool(useStrips),
-            applyPreselection = cms.bool(True),
+            applyPreselection = cms.bool(False),
             debug = cms.untracked.bool(False)
         )
         setattr(process, moduleNamePF, modulePF)
@@ -722,8 +722,8 @@ if options.runL1HPSTaus:
  
     
     process.hltL1DoubleHPSTau17 = cms.EDFilter("L1THPSPFTauFilter",
-                                               MaxEta=cms.double(2.172),
-                                               MinEta=cms.double(-2.172),
+                                               MaxEta=cms.double(2.1),
+                                               MinEta=cms.double(-2.1),
                                                MinN=cms.int32(2),
                                                MinPt=cms.double(17.0),
                                                MaxRelChargedIso = cms.double(0.1),
@@ -750,8 +750,8 @@ process.hltL1DoubleNNTau52 = cms.EDFilter("L1TPFTauFilter",
                                           PassLooseNN = cms.int32(0),
                                           inputTag=cms.InputTag("l1NNTauProducerPuppi", "L1PFTausNN", "L1TSkimming"),
                                           Scalings = cms.PSet(
-                                              barrel=cms.vdouble(9.54135, 1.73403, 0),
-                                              endcap=cms.vdouble(36.157, 3.83749, 0),
+                                              barrel=cms.vdouble(-9.54135, 1.73403, 0),
+                                              endcap=cms.vdouble(-36.157, 3.83749, 0),
                                           ),
                                           saveTags=cms.bool(True),
                                        )
@@ -763,8 +763,8 @@ process.hltL1SingleNNTau150 = cms.EDFilter("L1TPFTauFilter",
                                            PassLooseNN = cms.int32(0),
                                            inputTag=cms.InputTag("l1NNTauProducerPuppi", "L1PFTausNN", "L1TSkimming"),
                                            Scalings = cms.PSet(
-                                               barrel=cms.vdouble(9.54135, 1.73403, 0),
-                                               endcap=cms.vdouble(36.157, 3.83749, 0),
+                                               barrel=cms.vdouble(-9.54135, 1.73403, 0),
+                                               endcap=cms.vdouble(-36.157, 3.83749, 0),
                                            ),
                                            saveTags=cms.bool(True),
                                        )
@@ -922,8 +922,7 @@ eventContentReduced = cms.untracked.vstring(
 )
 eventContentReduced.extend(eventContentL1)
    
-
-process.hltOutputTot.outputCommands = cms.untracked.vstring()
+#process.hltOutputTot.outputCommands = eventContentL1Only
 
 for pathname in process.pathNames().split():
     if pathname.startswith("L1T_"):
