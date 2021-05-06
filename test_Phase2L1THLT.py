@@ -1,13 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("L1TSkimming")
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('analysis')
 options.register('filterOutput',True,options.multiplicity.singleton,options.varType.bool,"filter the outputed edm")
 options.register('runL1HPSTaus',True,options.multiplicity.singleton,options.varType.bool,"runL1HPSTaus")
 options.register('runL1NNTaus',True,options.multiplicity.singleton,options.varType.bool,"runL1NNTaus")
+options.register('reducedEvt',False,options.multiplicity.singleton,options.varType.bool,"output reduced event content")
+options.register('l1OnlyEvt',False,options.multiplicity.singleton,options.varType.bool,"l1 only event content")
+options.register('runOnExisting',False,options.multiplicity.singleton,options.varType.bool,"dont rerun the l1 but take existing values")
+
 options.register('nrThreads',2,options.multiplicity.singleton,options.varType.int,"number of threads to use")
 options.parseArguments()
+
+if options.runOnExisting:
+    process = cms.Process("L1TReSkiming")
+else:
+    process = cms.Process("L1TSkimming")
 
 ### Basic loads
 process.load("Configuration.StandardSequences.Services_cff")
@@ -823,10 +831,10 @@ if options.runL1NNTaus:
         process.HLTL1Sequence +
         process.hltL1DoubleNNTau52
     )
-    process.L1T_SingleNNTau150 = cms.Path(
-        process.HLTL1Sequence +
-        process.hltL1SingleNNTau150
-    )
+ #   process.L1T_SingleNNTau150 = cms.Path(
+ #       process.HLTL1Sequence +
+ #       process.hltL1SingleNNTau150
+ #   )
 
 if options.runL1HPSTaus:
     process.L1T_DoubleHPSTau21 = cms.Path(
@@ -834,10 +842,10 @@ if options.runL1HPSTaus:
         process.hltL1DoubleHPSTau21 + 
         process.hltL1DoubleHPSTau21DZ
     )
-    process.L1T_SingleHPSTau52 = cms.Path(
-        process.HLTL1TauSequence +
-        process.hltL1SingleHPSTau52
-    )
+  #  process.L1T_SingleHPSTau52 = cms.Path(
+  #      process.HLTL1TauSequence +
+  #      process.hltL1SingleHPSTau52
+  #  )
         
 
 ### Aging
@@ -896,8 +904,10 @@ eventContentReduced = cms.untracked.vstring(
 )
 eventContentReduced.extend(eventContentL1)
    
-process.hltOutputTot.outputCommands = eventContentReduced
-#process.hltOutputTot.outputCommands = eventContentL1Only
+if options.reducedEvt:
+    process.hltOutputTot.outputCommands = eventContentReduced
+if options.l1OnlyEvt:
+    process.hltOutputTot.outputCommands = eventContentL1Only
 
 for pathname in process.pathNames().split():
     if pathname.startswith("L1T_"):
@@ -929,12 +939,22 @@ process.schedule = cms.Schedule(
     ]
 )
 if options.runL1HPSTaus:
-    process.schedule.append(process.L1T_SingleHPSTau52 )
     process.schedule.append(process.L1T_DoubleHPSTau21 )
+#    process.schedule.append(process.L1T_SingleHPSTau52 )
+
 if options.runL1NNTaus:
     process.schedule.append(process.L1T_DoubleNNTau52)
-    process.schedule.append(process.L1T_SingleNNTau150)
+#    process.schedule.append(process.L1T_SingleNNTau150)
     
+if options.runOnExisting:
+    process.HLTL1Sequence = cms.Sequence()
+    process.HLTL1TauSequence = cms.Sequence()
+
+    process.hltL1DoubleHPSTau21.inputTag=cms.InputTag("L1HPSPFTauProducerWithStripsPF", "", "L1TSkimming")
+    process.hltL1DoubleHPSTau21DZ.originTag1 = cms.VInputTag("L1HPSPFTauProducerWithStripsPF::L1TSkimming")
+    process.hltL1DoubleHPSTau21DZ.originTag2 = cms.VInputTag("L1HPSPFTauProducerWithStripsPF::L1TSkimming")
+    process.hltL1SingleHPSTau52.inputTag=cms.InputTag("L1HPSPFTauProducerWithStripsPF", "", "L1TSkimming")
+
 print "eventcontent:"
 print process.hltOutputTot.outputCommands.value()
 print "filter paths:"
