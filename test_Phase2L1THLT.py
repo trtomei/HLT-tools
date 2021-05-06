@@ -5,6 +5,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('analysis')
 options.register('filterOutput',True,options.multiplicity.singleton,options.varType.bool,"filter the outputed edm")
 options.register('runL1HPSTaus',True,options.multiplicity.singleton,options.varType.bool,"runL1HPSTaus")
+options.register('runL1NNTaus',True,options.multiplicity.singleton,options.varType.bool,"runL1NNTaus")
 options.register('nrThreads',2,options.multiplicity.singleton,options.varType.int,"number of threads to use")
 options.parseArguments()
 
@@ -638,107 +639,79 @@ process.l1tDoublePFPuppiJets112offMaxDeta1p6 = cms.EDFilter(
 if options.runL1HPSTaus:
     process.HLTL1TauSequence = cms.Sequence(process.HLTL1Sequence)
     
-    #process.load("L1Trigger.Phase2L1ParticleFlow.pfTracksFromL1Tracks_cfi")
-    #process.HLTL1TauSequence += process.pfTracksFromL1Tracks
-
-    #process.load("L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff")
-    from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
-    _ak4PFJets      =  ak4PFJets.clone(doAreaFastjet = False)
-    process.ak4PFL1Calo    = _ak4PFJets.clone(src = 'l1pfCandidates:Calo')
-    process.ak4PFL1PF      = _ak4PFJets.clone(src = 'l1pfCandidates:PF')
-    process.ak4PFL1Puppi   = _ak4PFJets.clone(src = 'l1pfCandidates:Puppi')
-
-    from L1Trigger.Phase2L1ParticleFlow.L1SeedConePFJetProducer_cfi import L1SeedConePFJetProducer
-    process.scPFL1PF    = L1SeedConePFJetProducer.clone(L1PFObjects = 'l1pfCandidates:PF')
-    process.scPFL1Puppi = L1SeedConePFJetProducer.clone(L1PFObjects = 'l1pfCandidates:Puppi')
-
-    _correctedJets = cms.EDProducer("L1TCorrectedPFJetProducer", 
-                                    jets = cms.InputTag("_tag_"),
-                                    correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs.PU200_110X.root"),
-                                    correctorDir = cms.string("_dir_"),
-                                    copyDaughters = cms.bool(False)
-                                )        
-    process.ak4PFL1CaloCorrected = _correctedJets.clone(jets = 'ak4PFL1Calo', correctorDir = 'L1CaloJets')
-    process.ak4PFL1PFCorrected = _correctedJets.clone(jets = 'ak4PFL1PF', correctorDir = 'L1PFJets')
-    process.ak4PFL1PuppiCorrected = _correctedJets.clone(jets = 'ak4PFL1Puppi', correctorDir = 'L1PuppiJets')
-
-
-    process.l1PFJets = cms.Sequence( process.ak4PFL1Calo + process.ak4PFL1PF + process.ak4PFL1Puppi +
-                             process.ak4PFL1CaloCorrected + process.ak4PFL1PFCorrected + 
-                             process.ak4PFL1PuppiCorrected +
-                             process.scPFL1PF + process.scPFL1Puppi
-                         )
-    process.HLTL1TauSequence += process.l1PFJets
-
-    process.kt6L1PFJetsPF = process.ak4PFL1PF.clone(
-        jetAlgorithm = cms.string("Kt"),
-        rParam       = cms.double(0.6),
-        doRhoFastjet = cms.bool(True),
-        Rho_EtaMax   = cms.double(3.0)
-    )
-    process.HLTL1TauSequence += process.kt6L1PFJetsPF
-    process.l1pfNeutralCandidatesPF = cms.EDFilter("L1TPFCandSelector",
-                                                   src = cms.InputTag('l1pfCandidates:PF'),
-                                                   cut = cms.string("pdgId = 22"), # CV: cms.string("id = Photon") does not work (does not select any l1t::PFCandidates)                                                                                                                                                       
-                                                   filter = cms.bool(False)
-                                       )
-    process.HLTL1TauSequence += process.l1pfNeutralCandidatesPF
-    process.kt6L1PFJetsNeutralsPF = process.kt6L1PFJetsPF.clone(
-        src = cms.InputTag('l1pfNeutralCandidatesPF')
-    )
-    process.HLTL1TauSequence += process.kt6L1PFJetsNeutralsPF
-    
-    process.kt6L1PFJetsPuppi = process.kt6L1PFJetsPF.clone(
-        src = cms.InputTag('l1pfCandidates:Puppi')
-    )
-    process.HLTL1TauSequence += process.kt6L1PFJetsPuppi
-    process.l1pfNeutralCandidatesPuppi = process.l1pfNeutralCandidatesPF.clone(
-        src = cms.InputTag('l1pfCandidates:Puppi'),
-    )
-    process.HLTL1TauSequence += process.l1pfNeutralCandidatesPuppi
-    process.kt6L1PFJetsNeutralsPuppi = process.kt6L1PFJetsPuppi.clone(
-        src = cms.InputTag('l1pfNeutralCandidatesPuppi')
-    )
-    process.HLTL1TauSequence += process.kt6L1PFJetsNeutralsPuppi
-    
-    # SB: produce L1 HPS PF Tau objects    
-    process.load("L1Trigger.Phase2L1Taus.L1HPSPFTauProducerPF_cfi")
-    process.load("L1Trigger.Phase2L1Taus.L1HPSPFTauProducerPuppi_cfi")
+    from L1Trigger.Phase2L1Taus.HPSPFTauProducerPF_cfi import HPSPFTauProducerPF
+    from L1Trigger.Phase2L1Taus.HPSPFTauProducerPuppi_cfi import HPSPFTauProducerPuppi
     for useStrips in [ True, False ]:
-        moduleNameBase = "L1HPSPFTauProducer"
-        if useStrips:
-            moduleNameBase += "WithStrips"
-        else:
-            moduleNameBase += "WithoutStrips"
+        for applyPreselection in [ True, False ]:
+            moduleNameBase = "HPSPFTauProducer"
+            if useStrips and applyPreselection:
+                moduleNameBase += "WithStripsAndPreselection"
+            elif useStrips and not applyPreselection:
+                moduleNameBase += "WithStripsWithoutPreselection"
+            elif not useStrips and applyPreselection:
+                moduleNameBase += "WithoutStripsWithPreselection"
+            elif not useStrips and not applyPreselection:
+                moduleNameBase += "WithoutStripsAndPreselection"
+            else:
+                raise ValueError("Invalid Combination of 'useStrips' and 'applyPreselection' Configuration parameters !!")
+        
+            moduleNamePF = moduleNameBase + "PF"
+            modulePF = HPSPFTauProducerPF.clone(
+                useStrips = cms.bool(useStrips),
+                applyPreselection = cms.bool(applyPreselection),
+                debug = cms.untracked.bool(False)
+            )
+            setattr(process, moduleNamePF, modulePF)
+            process.HLTL1TauSequence += getattr(process, moduleNamePF)
+
+            moduleNamePuppi = moduleNameBase + "Puppi"
+            modulePuppi = HPSPFTauProducerPuppi.clone(
+                useStrips = cms.bool(useStrips),
+                applyPreselection = cms.bool(applyPreselection),
+                debug = cms.untracked.bool(False)
+            )
+            setattr(process, moduleNamePuppi, modulePuppi)
+            process.HLTL1TauSequence += getattr(process, moduleNamePuppi)
+            
+
  
-        moduleNamePF = moduleNameBase + "PF"
-        modulePF = process.L1HPSPFTauProducerPF.clone(
-            useStrips = cms.bool(useStrips),
-            applyPreselection = cms.bool(False),
-            debug = cms.untracked.bool(False)
-        )
-        setattr(process, moduleNamePF, modulePF)
-        process.HLTL1TauSequence += getattr(process, moduleNamePF)
- 
-    
-    process.hltL1DoubleHPSTau17 = cms.EDFilter("L1THPSPFTauFilter",
+    #https://indico.cern.ch/event/1017753/contributions/4271145/attachments/2209533/3739186/Sandeep_Phase2_L1_TauTrigger_20210316_v1.pdf
+    process.hltL1DoubleHPSTau21 = cms.EDFilter("L1THPSPFTauFilter",
                                                MaxEta=cms.double(2.1),
                                                MinEta=cms.double(-2.1),
                                                MinN=cms.int32(2),
-                                               MinPt=cms.double(17.0),
-                                               MaxRelChargedIso = cms.double(0.1),
+                                               MinPt=cms.double(21.0),
+                                               MaxRelChargedIso = cms.double(0.05),
                                                MinLeadTrackPt = cms.double(5),
-                                               inputTag=cms.InputTag("L1HPSPFTauProducerWithStripsPF", "", "L1TSkimming"),
+                                               inputTag=cms.InputTag("HPSPFTauProducerWithStripsWithoutPreselectionPF", "", "L1TSkimming"),
                                                saveTags=cms.bool(True),
                                            )
-    process.hltL1SingleHPSTau53 = cms.EDFilter("L1THPSPFTauFilter",
+
+    process.hltL1DoubleHPSTau21DZ = cms.EDFilter(
+        "HLT2L1HPSPFTauL1HPSPFTauDZ",
+        MaxDZ=cms.double(0.4),
+        MinDR=cms.double(0.5),
+        MinN=cms.int32(1),
+        MinPixHitsForDZ=cms.int32(0),
+        checkSC=cms.bool(False),
+        inputTag1=cms.InputTag("hltL1DoubleHPSTau21"),
+        inputTag2=cms.InputTag("hltL1DoubleHPSTau21"),
+        originTag1=cms.VInputTag("HPSPFTauProducerWithStripsWithoutPreselectionPF::L1TSkimming"),
+        originTag2=cms.VInputTag("HPSPFTauProducerWithStripsWithoutPreselectionPF::L1TSkimming"),
+        saveTags=cms.bool(True),
+        triggerType1=cms.int32(-117),
+        triggerType2=cms.int32(-117),
+    )
+
+
+    process.hltL1SingleHPSTau52 = cms.EDFilter("L1THPSPFTauFilter",
                                                MaxEta=cms.double(2.172),
                                                MinEta=cms.double(-2.172),
                                                MinN=cms.int32(1),
-                                               MinPt=cms.double(53.0),
-                                               MaxRelChargedIso = cms.double(0.1),
+                                               MinPt=cms.double(52.0),
+                                               MaxRelChargedIso = cms.double(0.05),
                                                MinLeadTrackPt = cms.double(5),
-                                               inputTag=cms.InputTag("L1HPSPFTauProducerWithStripsPF", "", "L1TSkimming"),
+                                               inputTag=cms.InputTag("HPSPFTauProducerWithStripsWithoutPreselectionPF", "", "L1TSkimming"),
                                                saveTags=cms.bool(True),
                                            )
 
@@ -767,7 +740,7 @@ process.hltL1SingleNNTau150 = cms.EDFilter("L1TPFTauFilter",
                                                endcap=cms.vdouble(-36.157, 3.83749, 0),
                                            ),
                                            saveTags=cms.bool(True),
-                                       )
+                                      )
 
 
 ### PATHS ###
@@ -845,23 +818,25 @@ process.L1T_DoublePFPuppiJets112_2p4_DEta1p6 = cms.Path(
     + process.l1tDoublePFPuppiJets112offMaxDeta1p6
 )
 
-process.L1T_DoubleNNTau52 = cms.Path(
-    process.HLTL1Sequence +
-    process.hltL1DoubleNNTau52
-)
-process.L1T_SingleNNTau150 = cms.Path(
-    process.HLTL1Sequence +
-    process.hltL1SingleNNTau150
-)
+if options.runL1NNTaus:
+    process.L1T_DoubleNNTau52 = cms.Path(
+        process.HLTL1Sequence +
+        process.hltL1DoubleNNTau52
+    )
+    process.L1T_SingleNNTau150 = cms.Path(
+        process.HLTL1Sequence +
+        process.hltL1SingleNNTau150
+    )
 
 if options.runL1HPSTaus:
-    process.L1T_DoubleHPSTau17 = cms.Path(
+    process.L1T_DoubleHPSTau21 = cms.Path(
         process.HLTL1TauSequence +
-        process.hltL1DoubleHPSTau17
+        process.hltL1DoubleHPSTau21 + 
+        process.hltL1DoubleHPSTau21DZ
     )
-    process.L1T_SingleHPSTau53 = cms.Path(
+    process.L1T_SingleHPSTau52 = cms.Path(
         process.HLTL1TauSequence +
-        process.hltL1SingleHPSTau53
+        process.hltL1SingleHPSTau52
     )
         
 
@@ -894,10 +869,9 @@ eventContentL1 = cms.untracked.vstring(
     'keep *_l1tPFPuppiHT_*_*',
     'keep *_l1PFMetPuppi_*_*',
     'keep *_l1tPFPuppiHTMaxEta2p4_*_*',
-    'keep *_L1HPSPFTauProducerWithStripsPF_*_*',
-    'keep *_L1HPSPFTauProducerWithStripsPF_*_*',
     'keep *_TTTracksFromTrackletEmulation_Level1TTTracks_*',
     'keep *_l1pf*Candidates_*_*',
+    'keep *_HPSPFTauProducerWithStripsWithoutPreselectionPF_*_*',
     )
 eventContentL1Only = cms.untracked.vstring(
     'drop *',
@@ -922,6 +896,7 @@ eventContentReduced = cms.untracked.vstring(
 )
 eventContentReduced.extend(eventContentL1)
    
+process.hltOutputTot.outputCommands = eventContentReduced
 #process.hltOutputTot.outputCommands = eventContentL1Only
 
 for pathname in process.pathNames().split():
@@ -949,14 +924,16 @@ process.schedule = cms.Schedule(
         process.L1T_PFPuppiHT450off,
         process.L1T_PFHT400PT30_QuadPFPuppiJet_70_55_40_40_2p4,
         process.L1T_DoublePFPuppiJets112_2p4_DEta1p6,
-        process.L1T_DoubleNNTau52,
-        process.L1T_SingleNNTau150,
+      
         process.outPath,
     ]
 )
 if options.runL1HPSTaus:
-    process.schedule.append(process.L1T_SingleHPSTau53 )
-    process.schedule.append(process.L1T_DoubleHPSTau17 )
+    process.schedule.append(process.L1T_SingleHPSTau52 )
+    process.schedule.append(process.L1T_DoubleHPSTau21 )
+if options.runL1NNTaus:
+    process.schedule.append(process.L1T_DoubleNNTau52)
+    process.schedule.append(process.L1T_SingleNNTau150)
     
 print "eventcontent:"
 print process.hltOutputTot.outputCommands.value()
