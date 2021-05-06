@@ -407,6 +407,50 @@ process.L1TkIsoEmSingle22Filter = cms.EDFilter(
         endcap=cms.vdouble(2.11186, 1.15524, 0.0),
     ),
 )
+process.L1TkIsoEleSingle22Filter = cms.EDFilter("L1TTkEleFilter",
+       saveTags = cms.bool( True ),
+       MinPt = cms.double( 22.0 ),
+       MinN=cms.int32(1),
+       MinEta=cms.double(-2.4),
+       MaxEta=cms.double(2.4),
+       inputTag1 = cms.InputTag("L1TkElectronsEllipticMatchCrystal","EG"),
+       inputTag2 = cms.InputTag("L1TkElectronsEllipticMatchHGC","EG"),
+       Qual1IsMask = cms.bool( True ), 
+       Qual2IsMask = cms.bool( False ),
+       ApplyQual1 = cms.bool( True ),
+       ApplyQual2 = cms.bool( True ),
+       Quality1 = cms.int32(0x2),
+       Quality2 = cms.int32(5),
+       EtaBinsForIsolation = cms.vdouble(0.0,1.479,2.4),
+       TrkIsolation = cms.vdouble(0.12,0.20),
+       Scalings = cms.PSet( # for TkIsoElectronOfflineEtCut, taken from PhaseIIL1TriggerMenuTools twiki
+           barrel=cms.vdouble(0.434262,1.20586,0.0),
+           endcap=cms.vdouble(0.266186,1.25976,0.0),
+       )                             
+)
+
+process.L1TkEmDouble12Filter = cms.EDFilter("L1TTkEmFilter",
+       saveTags = cms.bool( True ),
+       MinPt = cms.double( 12.0 ),
+       MinN=cms.int32(2),
+       MinEta=cms.double(-2.4), 
+       MaxEta=cms.double(2.4),
+       inputTag1 = cms.InputTag("L1TkPhotonsCrystal","EG"),
+       inputTag2 = cms.InputTag("L1TkPhotonsHGC","EG"),
+       Qual1IsMask = cms.bool( True ), 
+       Qual2IsMask = cms.bool( False ),
+       ApplyQual1 = cms.bool( True ),
+       ApplyQual2 = cms.bool( True ),
+       Quality1 = cms.int32(0x2),
+       Quality2 = cms.int32(5),
+       EtaBinsForIsolation = cms.vdouble(0.0,1.479,2.4),
+       TrkIsolation = cms.vdouble(99999.0,99999.0),
+       Scalings = cms.PSet( # for EGPhotonOfflineEtCut, taken from PhaseIIL1TriggerMenuTools twiki
+           barrel=cms.vdouble(2.6604,1.06077,0.0),
+           endcap=cms.vdouble(3.17445,1.13219,0.0),
+       )                             
+)
+
 
 process.L1TkIsoEmSingle36Filter = cms.EDFilter(
     "L1TTkEmFilter",
@@ -450,6 +494,10 @@ process.L1TTkIsoEle28Sequence = cms.Sequence(process.L1TkIsoEleSingle28Filter)
 
 process.L1TTkIsoEm22TkIsoEm12Sequence = cms.Sequence(
     process.L1TkIsoEmSingle22Filter + process.L1TkIsoEmDouble12Filter
+)
+process.L1TTkIsoEle22TkEm12Sequence = cms.Sequence(
+    process.L1TkIsoEleSingle22Filter +
+    process.L1TkEmDouble12Filter
 )
 
 process.L1TTkIsoEm36Sequence = cms.Sequence(process.L1TkIsoEmSingle36Filter)
@@ -780,6 +828,11 @@ process.L1T_TkIsoEle28 = cms.Path(process.HLTL1Sequence + process.L1TTkIsoEle28S
 process.L1T_TkEle25TkEle12 = cms.Path(
     process.HLTL1Sequence + process.L1TTkEle25TkEle12Sequence
 )
+process.L1T_TkIsoEle22TkEm12 = cms.Path(
+    process.HLTL1Sequence+
+    process.L1TTkIsoEle22TkEm12Sequence 
+)
+
 process.L1T_TkEm51 = cms.Path(process.HLTL1Sequence + process.L1TTkEm51Sequence)
 process.L1T_TkEm37TkEm24 = cms.Path(
     process.HLTL1Sequence + process.L1TTkEm37TkEm24Sequence
@@ -880,6 +933,7 @@ eventContentL1 = cms.untracked.vstring(
     'keep *_TTTracksFromTrackletEmulation_Level1TTTracks_*',
     'keep *_l1pf*Candidates_*_*',
     'keep *_HPSPFTauProducerWithStripsWithoutPreselectionPF_*_*',
+    'keep *_*_*_L1TSkimming',
     )
 eventContentL1Only = cms.untracked.vstring(
     'drop *',
@@ -896,11 +950,12 @@ eventContentReduced = cms.untracked.vstring(
     'drop TrackingParticles_mix_MergedTrackTruth_HLT',
     'drop TrackingVertexs_mix_MergedTrackTruth_HLT',
     'drop TrackingVertexs_mix_InitialVertices_HLT',
-    'drop CaloParticles_mix_MergedCaloTruth_HLT',
+    #'drop CaloParticles_mix_MergedCaloTruth_HLT',
     'drop PCaloHits_g4SimHits_EcalHitsEB_SIM',
     'drop PCaloHits_g4SimHits_HGCHitsEE_SIM',
-    'drop SimClusters_mix_MergedCaloTruth_HLT',
-    'drop *_me0RecHits_*_*'
+    #'drop SimClusters_mix_MergedCaloTruth_HLT',
+    'drop *_me0RecHits_*_*',
+
 )
 eventContentReduced.extend(eventContentL1)
    
@@ -928,6 +983,7 @@ process.schedule = cms.Schedule(
         process.L1T_TkEm51,
         process.L1T_TkEm37TkEm24,
         process.L1T_TkIsoEm36,
+        process.L1T_TkIsoEle22TkEm12,
         process.L1T_TkIsoEm22TkIsoEm12,
         process.L1T_SinglePFPuppiJet230off,
         process.L1T_PFPuppiMET220off,
